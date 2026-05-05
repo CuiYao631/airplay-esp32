@@ -46,7 +46,7 @@ static const char *TAG = "bt_a2dp";
 /* Configuration                                                              */
 /* ========================================================================== */
 
-#define RINGBUF_SIZE     (16 * 1024)
+#define RINGBUF_SIZE     ((size_t)16 * 1024)
 #define RINGBUF_PREFETCH (RINGBUF_SIZE * 6 / 10)
 
 #define BT_TASK_STACK 4096

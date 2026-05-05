@@ -384,75 +384,94 @@ static void tas58xx_dump_status(const char *context) {
 
   if (chan_fault || global1 || global2 || ot_warning) {
     if (chan_fault) {
-      if (chan_fault & BIT(0))
+      if (chan_fault & BIT(0)) {
         ESP_LOGW(TAG, "Right channel over current fault");
+      }
 
-      if (chan_fault & BIT(1))
+      if (chan_fault & BIT(1)) {
         ESP_LOGW(TAG, "Left channel over current fault");
+      }
 
-      if (chan_fault & BIT(2))
+      if (chan_fault & BIT(2)) {
         ESP_LOGW(TAG, "Right channel DC fault");
+      }
 
-      if (chan_fault & BIT(3))
+      if (chan_fault & BIT(3)) {
         ESP_LOGW(TAG, "Left channel DC fault");
+      }
     }
 
     if (global1) {
-      if (global1 & BIT(0))
+      if (global1 & BIT(0)) {
         ESP_LOGW(TAG, "PVDD UV fault");
+      }
 
-      if (global1 & BIT(1))
+      if (global1 & BIT(1)) {
         ESP_LOGW(TAG, "PVDD OV fault");
+      }
 
       // This fault is often triggered by lack of I2S clock, which is expected
       // during longer pauses (when mute state is triggeered).
-      if (global1 & BIT(2))
+      if (global1 & BIT(2)) {
         ESP_LOGW(TAG, "Clock fault");
+      }
 
       // Bits 3-4 are reserved
 
       // Bit 5 applies only to tas5825m
-      if (global1 & BIT(5))
+      if (global1 & BIT(5)) {
         ESP_LOGW(TAG, "EEPROM boot load error");
+      }
 
-      if (global1 & BIT(6))
+      if (global1 & BIT(6)) {
         ESP_LOGW(TAG, "The recent BQ write failed");
+      }
 
-      if (global1 & BIT(7))
+      if (global1 & BIT(7)) {
         ESP_LOGW(TAG, "OTP CRC check error");
+      }
     }
 
     if (global2) {
-      if (global2 & BIT(0))
+      if (global2 & BIT(0)) {
         ESP_LOGW(TAG, "Over temperature shut down fault");
+      }
 
       // Bits 1-2 only apply to tas5825m
-      if (global2 & BIT(1))
+      if (global2 & BIT(1)) {
         ESP_LOGW(TAG, "Left channel cycle by cycle over current fault");
+      }
 
-      if (global2 & BIT(2))
+      if (global2 & BIT(2)) {
         ESP_LOGW(TAG, "Right channel cycle by cycle over current fault");
+      }
     }
 
     if (ot_warning) {
-      if (ot_warning & BIT(0))
+      if (ot_warning & BIT(0)) {
         ESP_LOGW(TAG, "Over temperature warning level 1, 112C");
+      }
 
-      if (ot_warning & BIT(1))
+      if (ot_warning & BIT(1)) {
         ESP_LOGW(TAG, "Over temperature warning level 2, 122C");
+      }
 
-      if (ot_warning & BIT(2))
+      if (ot_warning & BIT(2)) {
         ESP_LOGW(TAG, "Over temperature warning level 3, 134C");
+      }
 
-      if (ot_warning & BIT(3))
+      if (ot_warning & BIT(3)) {
         ESP_LOGW(TAG, "Over temperature warning level 4, 146C");
+      }
 
       // Bits 4-5 apply to tas5825m only
-      if (ot_warning & BIT(4))
+      if (ot_warning & BIT(4)) {
         ESP_LOGW(TAG, "Right channel cycle by cycle over current warning");
+      }
 
-      if (ot_warning & BIT(5))
+      if (ot_warning & BIT(5)) {
         ESP_LOGW(TAG, "Left channel cycle by cycle over current warning");
+      }
     }
   } else {
     ESP_LOGD(TAG, "  FAULTS: none");

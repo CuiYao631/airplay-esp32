@@ -23,7 +23,7 @@ const uint8_t *rtsp_find_header_end(const uint8_t *data, size_t len) {
 int rtsp_parse_cseq(const char *request) {
   const char *cseq = strstr(request, "CSeq:");
   if (cseq) {
-    return atoi(cseq + 5);
+    return (int)strtol(cseq + 5, NULL, 10);
   }
   return 1;
 }
@@ -34,7 +34,7 @@ int rtsp_parse_content_length(const char *request) {
     cl = strstr(request, "content-length:");
   }
   if (cl) {
-    return atoi(cl + 15);
+    return (int)strtol(cl + 15, NULL, 10);
   }
   return 0;
 }
@@ -77,13 +77,13 @@ void rtsp_parse_transport(const char *request, uint16_t *control_port,
   // Parse control_port
   const char *cp = strstr(transport, "control_port=");
   if (cp && cp < line_end && control_port) {
-    *control_port = (uint16_t)atoi(cp + 13);
+    *control_port = (uint16_t)strtoul(cp + 13, NULL, 10);
   }
 
   // Parse timing_port
   const char *tp = strstr(transport, "timing_port=");
   if (tp && tp < line_end && timing_port) {
-    *timing_port = (uint16_t)atoi(tp + 12);
+    *timing_port = (uint16_t)strtoul(tp + 12, NULL, 10);
   }
 }
 

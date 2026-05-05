@@ -11,6 +11,8 @@ set(EXTRA_COMPONENT_DIRS "${CMAKE_SOURCE_DIR}/components")
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(airplay2-receiver VERSION ${PROJECT_VER})
 
+include(cmake/fix_usb_device_uac_platformio.cmake)
+
 # Build a SPIFFS image from data/ and flash it alongside the firmware.
 # Partition label "storage" matches partitions.csv. Used by:
 #   - components/dac_tas57xx/ (HybridFlow DAC firmware)

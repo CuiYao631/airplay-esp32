@@ -42,7 +42,7 @@ static esp_err_t serve_spiffs_file(httpd_req_t *req, const char *path,
   char buf[SPIFFS_CHUNK_SIZE];
   size_t n;
   while ((n = fread(buf, 1, sizeof(buf), f)) > 0) {
-    if (httpd_resp_send_chunk(req, buf, n) != ESP_OK) {
+    if (httpd_resp_send_chunk(req, buf, (ssize_t)n) != ESP_OK) {
       fclose(f);
       httpd_resp_send_chunk(req, NULL, 0);
       return ESP_FAIL;
@@ -348,7 +348,7 @@ static esp_err_t fs_upload_handler(httpd_req_t *req) {
     return ESP_FAIL;
   }
 
-  if (req->content_len == 0 || req->content_len > 64 * 1024) {
+  if (req->content_len == 0 || req->content_len > (size_t)(64 * 1024)) {
     httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Body required (max 64KB)");
     return ESP_FAIL;
   }
@@ -362,9 +362,9 @@ static esp_err_t fs_upload_handler(httpd_req_t *req) {
   }
 
   char buf[SPIFFS_CHUNK_SIZE];
-  int remaining = req->content_len;
+  size_t remaining = req->content_len;
   while (remaining > 0) {
-    int to_read = remaining < (int)sizeof(buf) ? remaining : (int)sizeof(buf);
+    size_t to_read = remaining < sizeof(buf) ? remaining : sizeof(buf);
     int received = httpd_req_recv(req, buf, to_read);
     if (received <= 0) {
       fclose(f);
@@ -373,16 +373,16 @@ static esp_err_t fs_upload_handler(httpd_req_t *req) {
                           "Receive failed");
       return ESP_FAIL;
     }
-    fwrite(buf, 1, received, f);
-    remaining -= received;
+    fwrite(buf, 1, (size_t)received, f);
+    remaining -= (size_t)received;
   }
   fclose(f);
 
-  ESP_LOGI(TAG, "Uploaded %d bytes to %s", req->content_len, path);
+  ESP_LOGI(TAG, "Uploaded %u bytes to %s", (unsigned)req->content_len, path);
 
   cJSON *json = cJSON_CreateObject();
   cJSON_AddBoolToObject(json, "success", true);
-  cJSON_AddNumberToObject(json, "size", req->content_len);
+  cJSON_AddNumberToObject(json, "size", (double)req->content_len);
   cJSON_AddStringToObject(json, "path", path);
   char *json_str = cJSON_Print(json);
   httpd_resp_set_type(req, "application/json");
@@ -451,7 +451,7 @@ static esp_err_t fs_list_handler(httpd_req_t *req) {
       snprintf(full_path, sizeof(full_path), "%s/%s", dir_path, entry->d_name);
       struct stat st;
       if (stat(full_path, &st) == 0) {
-        cJSON_AddNumberToObject(item, "size", st.st_size);
+        cJSON_AddNumberToObject(item, "size", (double)st.st_size);
       }
       cJSON_AddItemToArray(files, item);
     }

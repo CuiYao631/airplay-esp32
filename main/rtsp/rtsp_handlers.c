@@ -762,6 +762,7 @@ static void parse_sdp(rtsp_conn_t *conn, const char *sdp, size_t len) {
       *slash = '\0';
       int sr = 0;
       int ch = 0;
+      // NOLINTNEXTLINE(bugprone-unchecked-string-to-number-conversion)
       if (sscanf(slash + 1, "%d/%d", &sr, &ch) >= 1) {
         if (sr > 0) {
           format.sample_rate = sr;
@@ -778,6 +779,7 @@ static void parse_sdp(rtsp_conn_t *conn, const char *sdp, size_t len) {
     unsigned int frame_len, bit_depth, pb, mb, kb, num_ch, max_run, max_frame,
         avg_rate, rate;
     unsigned int compat;
+    // NOLINTNEXTLINE(bugprone-unchecked-string-to-number-conversion)
     int matched = sscanf(fmtp, "a=fmtp:%*d %u %u %u %u %u %u %u %u %u %u %u",
                          &frame_len, &compat, &bit_depth, &pb, &mb, &kb,
                          &num_ch, &max_run, &max_frame, &avg_rate, &rate);
@@ -1346,6 +1348,7 @@ static void parse_progress(const char *progress_str, uint32_t sample_rate,
                            rtsp_metadata_t *meta) {
   uint64_t start = 0, current = 0, end = 0;
 
+  // NOLINTNEXTLINE(bugprone-unchecked-string-to-number-conversion)
   if (sscanf(progress_str, "%" PRIu64 "/%" PRIu64 "/%" PRIu64, &start, &current,
              &end) == 3) {
     if (sample_rate == 0) {
@@ -1403,7 +1406,7 @@ static void handle_set_parameter(int socket, rtsp_conn_t *conn,
       if (strstr((const char *)body, "volume:")) {
         const char *vol = strstr((const char *)body, "volume:");
         if (vol) {
-          float volume = (float)atof(vol + 7);
+          float volume = strtof(vol + 7, NULL);
           rtsp_conn_set_volume(conn, volume);
         }
       }

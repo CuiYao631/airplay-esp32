@@ -434,7 +434,7 @@ static esp_err_t init_jack_gpio(void) {
 }
 
 // Override the abort() function to mute GPIO during system panics
-// This is called by ESP-IDF during panic/abort situations
+// This is called by ESP-IDF during panic/abort situations via -Wl,--wrap=abort
 void IRAM_ATTR __wrap_abort(void) {
   // Immediately mute the amplifier using direct register access
   // This must be fast and not rely on any complex systems

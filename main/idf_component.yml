@@ -1,9 +1,9 @@
 dependencies:
-  espressif/mdns: "*"
-  espressif/libsodium: "*"
-  espressif/esp_audio_codec: "^2.4.0"
-  espressif/led_strip: "*"
+  espressif/mdns: "^1.11.1"
+  espressif/libsodium: "^1.0.21"
+  espressif/esp_audio_codec: "^2.5.0"
+  espressif/led_strip: "^3.0.3"
   espressif/usb_device_uac:
-    version: "*"
+    version: "^1.2.3"
     rules:
       - if: "idf_version >=5.0 && (target in [esp32s2, esp32s3, esp32p4])"

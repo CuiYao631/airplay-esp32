@@ -79,13 +79,15 @@ static void buffered_audio_task(void *pvParameters) {
     struct timeval tv = {.tv_sec = 30, .tv_usec = 0};
     setsockopt(client_sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
 
-    // Clamp the kernel receive buffer so the lwIP TCP window closes quickly
-    // when our PCM ring is full and back-pressure reaches the sender within
-    // a couple of MSS.  Our real jitter buffer is audio_buffer (~8 s of
-    // decoded PCM); we don't want a second, uncontrolled jitter buffer
-    // hiding inside the network stack.  4 KB ≈ 3 MSS — large enough that
-    // a single recv() call still gets a full audio packet in one shot.
-    int rcvbuf = 4096;
+    // Keep the kernel receive buffer modest so back-pressure from our PCM
+    // ring eventually reaches the sender, but large enough that the iPhone
+    // can actually pre-buffer the compressed audio it wants to
+    // send ahead at session start.  At ~128 kbps that's ~12 KB compressed;
+    // 64 KB gives plenty of headroom for SETRATEANCHORTIME bursts without
+    // hiding seconds of audio inside the network stack.  Our real jitter
+    // buffer is audio_buffer (~8 s of decoded PCM); 64 KB at the socket
+    // adds at most ~4s of compressed audio under worst-case stall.
+    int rcvbuf = 65536;
     setsockopt(client_sock, SOL_SOCKET, SO_RCVBUF, &rcvbuf, sizeof(rcvbuf));
 
     uint8_t *packet = state->buffered_recv_buffer;

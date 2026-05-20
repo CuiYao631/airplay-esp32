@@ -34,12 +34,23 @@ static const char *TAG = "ptp_clock";
 #define PTP_TIMESTAMP_SIZE   10
 
 // Synchronization parameters
-#define LOCK_THRESHOLD_NS    40000000LL // 40ms - tight threshold for lock
-#define MIN_SAMPLES_FOR_LOCK 8
-#define LOCK_STABLE_TIME_MS  1000 // 1s of stable readings to declare lock
+//
+// WiFi-side timestamping jitter on ESP32 is ~20–30 ms in practice, so a tight
+// 40 ms lock threshold can take 10+ seconds to satisfy.  Loosen the lock
+// criteria to converge in <1 s while still rejecting genuine outliers via
+// the median filter:
+//   • LOCK_THRESHOLD_NS:    50 ms  — accept normal WiFi jitter
+//   • OUTLIER_THRESHOLD_NS: 75 ms  — keep the threshold strictly larger than
+//                                   LOCK_THRESHOLD_NS so a borderline sample
+//                                   isn't both kept and counted against lock
+//   • MIN_SAMPLES_FOR_LOCK: 4      — ~500 ms at 8 Hz SYNC rate
+//   • LOCK_STABLE_TIME_MS:  250    — confirm stability without long wait
+#define LOCK_THRESHOLD_NS    50000000LL // 50ms - tolerant of WiFi jitter
+#define MIN_SAMPLES_FOR_LOCK 4
+#define LOCK_STABLE_TIME_MS  250 // 250ms of stable readings to declare lock
 #define LOCK_TIMEOUT_MS      5000
 #define SAMPLE_BUFFER_SIZE   16         // Ring buffer for median filtering
-#define OUTLIER_THRESHOLD_NS 50000000LL // 50ms - reject samples beyond this
+#define OUTLIER_THRESHOLD_NS 75000000LL // 75ms - reject samples beyond this
 
 // PTP state
 static struct {
@@ -70,6 +81,9 @@ static struct {
   // Statistics
   uint32_t sync_count;
   uint32_t followup_count;
+  uint32_t announce_count;
+  uint32_t rejected_master_count; // SYNC/FOLLOW_UP from a non-matching master
+  uint32_t outlier_count;         // samples rejected by 50ms threshold
 
   // Master clock filter (0 = accept any master)
   uint64_t expected_clock_id;
@@ -144,6 +158,7 @@ static void update_offset(int64_t new_offset_ns) {
       diff = -diff;
     }
     if (diff > OUTLIER_THRESHOLD_NS) {
+      ptp.outlier_count++;
       return;
     }
   }
@@ -181,6 +196,12 @@ static void update_offset(int64_t new_offset_ns) {
           ptp.locked = true;
           ptp.lock_start_ms = now_ms;
           ptp.lock_candidate_start_ms = 0;
+          ESP_LOGI(TAG,
+                   "LOCKED: offset=%+lldns max_dev=%lldns samples=%d "
+                   "sync=%lu followup=%lu",
+                   (long long)ptp.filtered_offset_ns, (long long)max_dev,
+                   ptp.sample_fill, (unsigned long)ptp.sync_count,
+                   (unsigned long)ptp.followup_count);
         }
       }
     } else {
@@ -188,6 +209,8 @@ static void update_offset(int64_t new_offset_ns) {
       if (ptp.locked && max_dev > LOCK_THRESHOLD_NS * 4) {
         ptp.locked = false;
         ptp.lock_start_ms = 0;
+        ESP_LOGW(TAG, "LOST LOCK: max_dev=%lldns (threshold=%lldns)",
+                 (long long)max_dev, (long long)(LOCK_THRESHOLD_NS * 4));
       }
     }
   }
@@ -254,6 +277,7 @@ static void process_ptp_message(const uint8_t *data, size_t len,
       (msg_type == PTP_MSG_SYNC || msg_type == PTP_MSG_FOLLOW_UP)) {
     uint64_t src_clock_id = parse_ptp_clock_id(data);
     if (src_clock_id != ptp.expected_clock_id) {
+      ptp.rejected_master_count++;
       return;
     }
   }
@@ -272,6 +296,7 @@ static void process_ptp_message(const uint8_t *data, size_t len,
     break;
 
   case PTP_MSG_ANNOUNCE:
+    ptp.announce_count++;
     // Could track master identity here if needed
     break;
 
@@ -326,6 +351,12 @@ static int create_ptp_socket(uint16_t port) {
 // PTP task - listens for messages on both ports
 static void ptp_task(void *pvParameters) {
   uint8_t buffer[256];
+  // Track running totals so the periodic status line can show deltas instead
+  // of cumulative numbers, which is easier to read when diagnosing why we are
+  // not locking (e.g. announce-only, all rejected, all outliers).
+  uint32_t last_sync = 0, last_followup = 0, last_announce = 0;
+  uint32_t last_rejected = 0, last_outlier = 0;
+  uint32_t last_status_ms = 0;
 
   while (ptp.running) {
     fd_set read_fds;
@@ -365,23 +396,50 @@ static void ptp_task(void *pvParameters) {
 
     if (ret == 0) {
       // Timeout - check if we lost lock due to no messages
-      continue;
-    }
+    } else {
+      // Check event port (SYNC messages)
+      if (ptp.event_socket >= 0 && FD_ISSET(ptp.event_socket, &read_fds)) {
+        ssize_t len = recv(ptp.event_socket, buffer, sizeof(buffer), 0);
+        if (len > 0) {
+          process_ptp_message(buffer, (size_t)len, true);
+        }
+      }
 
-    // Check event port (SYNC messages)
-    if (ptp.event_socket >= 0 && FD_ISSET(ptp.event_socket, &read_fds)) {
-      ssize_t len = recv(ptp.event_socket, buffer, sizeof(buffer), 0);
-      if (len > 0) {
-        process_ptp_message(buffer, (size_t)len, true);
+      // Check general port (FOLLOW_UP messages)
+      if (ptp.general_socket >= 0 && FD_ISSET(ptp.general_socket, &read_fds)) {
+        ssize_t len = recv(ptp.general_socket, buffer, sizeof(buffer), 0);
+        if (len > 0) {
+          process_ptp_message(buffer, (size_t)len, false);
+        }
       }
     }
 
-    // Check general port (FOLLOW_UP messages)
-    if (ptp.general_socket >= 0 && FD_ISSET(ptp.general_socket, &read_fds)) {
-      ssize_t len = recv(ptp.general_socket, buffer, sizeof(buffer), 0);
-      if (len > 0) {
-        process_ptp_message(buffer, (size_t)len, false);
-      }
+    // Periodic status log: every ~5 seconds while running, regardless of
+    // lock state, so we can see why a slave is failing to converge.
+    uint32_t now_ms = xTaskGetTickCount() * portTICK_PERIOD_MS;
+    if (last_status_ms == 0) {
+      last_status_ms = now_ms;
+    } else if ((now_ms - last_status_ms) >= 5000) {
+      uint32_t dsync = ptp.sync_count - last_sync;
+      uint32_t dfollowup = ptp.followup_count - last_followup;
+      uint32_t dannounce = ptp.announce_count - last_announce;
+      uint32_t drejected = ptp.rejected_master_count - last_rejected;
+      uint32_t doutlier = ptp.outlier_count - last_outlier;
+      ESP_LOGI(TAG,
+               "status: locked=%d offset=%+lldns samples=%d/%d "
+               "master=%016llx | last5s sync=%lu follow=%lu announce=%lu "
+               "reject=%lu outlier=%lu",
+               ptp.locked, (long long)ptp.filtered_offset_ns, ptp.sample_fill,
+               SAMPLE_BUFFER_SIZE, (unsigned long long)ptp.expected_clock_id,
+               (unsigned long)dsync, (unsigned long)dfollowup,
+               (unsigned long)dannounce, (unsigned long)drejected,
+               (unsigned long)doutlier);
+      last_sync = ptp.sync_count;
+      last_followup = ptp.followup_count;
+      last_announce = ptp.announce_count;
+      last_rejected = ptp.rejected_master_count;
+      last_outlier = ptp.outlier_count;
+      last_status_ms = now_ms;
     }
   }
 

@@ -174,6 +174,10 @@ uint32_t audio_receiver_get_hardware_latency_us(void) {
   return audio_timing_get_hardware_latency();
 }
 
+uint32_t audio_receiver_get_advertised_latency_us(void) {
+  return audio_timing_get_advertised_latency(&receiver.timing);
+}
+
 void audio_receiver_set_anchor_time(uint64_t clock_id, uint64_t network_time_ns,
                                     uint32_t rtp_time) {
   if (!receiver.stream) {

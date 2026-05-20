@@ -363,13 +363,14 @@ static esp_err_t system_info_handler(httpd_req_t *req) {
     if (esp_wifi_sta_get_ap_info(&ap) == ESP_OK) {
       char ssid_buf[33];
       size_t slen = strnlen((const char *)ap.ssid, sizeof(ap.ssid));
-      if (slen > sizeof(ssid_buf) - 1) slen = sizeof(ssid_buf) - 1;
+      if (slen > sizeof(ssid_buf) - 1)
+        slen = sizeof(ssid_buf) - 1;
       memcpy(ssid_buf, ap.ssid, slen);
       ssid_buf[slen] = '\0';
       char bssid_buf[18];
-      snprintf(bssid_buf, sizeof(bssid_buf),
-               "%02x:%02x:%02x:%02x:%02x:%02x", ap.bssid[0], ap.bssid[1],
-               ap.bssid[2], ap.bssid[3], ap.bssid[4], ap.bssid[5]);
+      snprintf(bssid_buf, sizeof(bssid_buf), "%02x:%02x:%02x:%02x:%02x:%02x",
+               ap.bssid[0], ap.bssid[1], ap.bssid[2], ap.bssid[3], ap.bssid[4],
+               ap.bssid[5]);
       const char *phy = "?";
       if (ap.phy_11n)
         phy = "11n";

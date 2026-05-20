@@ -538,8 +538,8 @@ void ptp_clock_set_master_clock_id(uint64_t clock_id) {
     return;
   }
 
-  ESP_LOGI(TAG, "PTP master clock_id %s: %016llx",
-           clock_id ? "set" : "cleared", (unsigned long long)clock_id);
+  ESP_LOGI(TAG, "PTP master clock_id %s: %016llx", clock_id ? "set" : "cleared",
+           (unsigned long long)clock_id);
   ptp.expected_clock_id = clock_id;
 
   // Drop accumulated samples / lock state — they may have come from a

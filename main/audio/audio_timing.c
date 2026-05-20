@@ -9,8 +9,8 @@
 #include "ntp_clock.h"
 #include "ptp_clock.h"
 
-#define DEFAULT_BUFFER_LATENCY_US     200000 // 200ms startup jitter buffer
-#define HARDWARE_OUTPUT_LATENCY_US    46000  // ~46ms I2S DMA latency
+#define DEFAULT_BUFFER_LATENCY_US  200000 // 200ms startup jitter buffer
+#define HARDWARE_OUTPUT_LATENCY_US 46000  // ~46ms I2S DMA latency
 // PIPELINE_PROCESSING_LATENCY_US: combined fixed delay between a frame
 // landing on the wire at the phone and entering the sorted jitter buffer
 // on our side.  Breakdown (approximate, measured on a quiet WiFi network):
@@ -22,9 +22,9 @@
 // HARDWARE_OUTPUT_LATENCY_US (DMA-side) and DEFAULT_BUFFER_LATENCY_US
 // (jitter-buffer target depth) so each can be tuned in isolation.
 #define PIPELINE_PROCESSING_LATENCY_US 15000
-#define MIN_STARTUP_FRAMES            4
-#define DRIFT_ADJUST_THRESHOLD_FRAMES 2
-#define TIMING_THRESHOLD_US           40000 // 40ms early/late threshold
+#define MIN_STARTUP_FRAMES             4
+#define DRIFT_ADJUST_THRESHOLD_FRAMES  2
+#define TIMING_THRESHOLD_US            40000 // 40ms early/late threshold
 // If a frame is late by more than this, flush the whole buffer at once
 // instead of draining one frame per DMA callback (which would cause seconds
 // of silence while thousands of stale frames are individually dropped).
@@ -536,8 +536,7 @@ size_t audio_timing_read(audio_timing_t *timing, audio_buffer_t *buffer,
           // so we burn through the backlog and reach the live edge.
           if (early_us < -POST_FLUSH_LATE_DROP_US) {
             if (timing->consecutive_late_frames == 0) {
-              ESP_LOGW(TAG,
-                       "post_flush: dropping stale frame %lld ms late",
+              ESP_LOGW(TAG, "post_flush: dropping stale frame %lld ms late",
                        -early_us / 1000LL);
             }
             timing->consecutive_late_frames++;

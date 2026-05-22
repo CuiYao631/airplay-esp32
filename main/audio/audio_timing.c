@@ -11,26 +11,13 @@
 
 #define DEFAULT_BUFFER_LATENCY_US  200000 // 200ms startup jitter buffer
 #define HARDWARE_OUTPUT_LATENCY_US 46000  // ~46ms I2S DMA latency
-// PIPELINE_PROCESSING_LATENCY_US: combined fixed delay between a frame
-// landing on the wire at the phone and entering the sorted jitter buffer
-// on our side.  Breakdown (approximate, measured on a quiet WiFi network):
-//   ~10 ms  AAC decode (1024-sample frame, single-call)
-//   ~ 1 ms  ChaCha20 decrypt
-//   ~ 4 ms  WiFi+TCP receive jitter median
-// Reported to the phone as part of outputLatencyMicros so its scheduler
-// knows the actual end-to-end pipeline depth.  Kept independent of
-// HARDWARE_OUTPUT_LATENCY_US (DMA-side) and DEFAULT_BUFFER_LATENCY_US
-// (jitter-buffer target depth) so each can be tuned in isolation.
-#define PIPELINE_PROCESSING_LATENCY_US 15000
-#define MIN_STARTUP_FRAMES             4
-#define DRIFT_ADJUST_THRESHOLD_FRAMES  2
-#define TIMING_THRESHOLD_US            40000 // 40ms early/late threshold
-// If a frame is late by more than this, flush the whole buffer at once
-// instead of draining one frame per DMA callback (which would cause seconds
-// of silence while thousands of stale frames are individually dropped).
-// Kept independent of DEFAULT_BUFFER_LATENCY_US so reducing the startup
-// buffer doesn't also reduce the late-detection threshold.
-#define BULK_FLUSH_LATE_THRESHOLD_US 2000000 // 2 seconds
+// Additional pipeline latency to account for task scheduling, I2S write
+// blocking, and resampler processing.  Without this, frames pass the
+// timing check "on time" but actually exit the speaker several ms later.
+#define PIPELINE_LATENCY_US           10000 // ~10ms scheduling + write delay
+#define MIN_STARTUP_FRAMES            4
+#define DRIFT_ADJUST_THRESHOLD_FRAMES 2
+#define TIMING_THRESHOLD_US           40000 // 40ms early/late threshold
 // If a frame is late by more than this, flush the whole buffer at once
 // instead of draining one frame per DMA callback (which would cause seconds
 // of silence while thousands of stale frames are individually dropped).
@@ -161,7 +148,9 @@ static bool compute_early_us(const audio_timing_t *timing,
   }
 
   // Subtract hardware latency to account for I2S DMA delay
-  target_ns -= (int64_t)HARDWARE_OUTPUT_LATENCY_US * 1000LL;
+  // and pipeline latency for task scheduling and write blocking
+  target_ns -=
+      (int64_t)(HARDWARE_OUTPUT_LATENCY_US + PIPELINE_LATENCY_US) * 1000LL;
 
   int64_t now_ns = (int64_t)esp_timer_get_time() * 1000LL;
   *early_us = (target_ns - now_ns) / 1000LL;

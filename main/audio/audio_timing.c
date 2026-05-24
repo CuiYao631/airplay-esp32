@@ -4,13 +4,13 @@
 
 #include "audio_timing.h"
 
+#include "audio_output.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "ntp_clock.h"
 #include "ptp_clock.h"
 
-#define DEFAULT_BUFFER_LATENCY_US  200   // 200µs startup jitter buffer
-#define HARDWARE_OUTPUT_LATENCY_US 40000 // ~40ms I2S DMA latency
+#define DEFAULT_BUFFER_LATENCY_US 200 // 200µs startup jitter buffer
 // Additional pipeline latency to account for task scheduling, I2S write
 // blocking, and resampler processing.  Without this, frames pass the
 // timing check "on time" but actually exit the speaker several ms later.
@@ -148,9 +148,12 @@ static bool compute_early_us(const audio_timing_t *timing,
   }
 
   // Subtract hardware latency to account for I2S DMA delay
-  // and pipeline latency for task scheduling and write blocking
+  // and pipeline latency for task scheduling and write blocking.
+  // The hardware latency is computed from the DMA descriptor/frame
+  // configuration rather than being hard-coded.
   target_ns -=
-      (int64_t)(HARDWARE_OUTPUT_LATENCY_US + PIPELINE_LATENCY_US) * 1000LL;
+      (int64_t)(audio_output_get_hardware_latency_us() + PIPELINE_LATENCY_US) *
+      1000LL;
 
   int64_t now_ns = (int64_t)esp_timer_get_time() * 1000LL;
   *early_us = (target_ns - now_ns) / 1000LL;
@@ -223,7 +226,7 @@ uint32_t audio_timing_get_output_latency(const audio_timing_t *timing) {
 }
 
 uint32_t audio_timing_get_hardware_latency(void) {
-  return HARDWARE_OUTPUT_LATENCY_US;
+  return audio_output_get_hardware_latency_us();
 }
 
 uint32_t audio_timing_get_advertised_latency(const audio_timing_t *timing) {
@@ -236,7 +239,7 @@ uint32_t audio_timing_get_advertised_latency(const audio_timing_t *timing) {
   // + PIPELINE_PROCESSING_LATENCY_US — decrypt + decode + net jitter constant
   uint32_t base =
       timing ? timing->output_latency_us : DEFAULT_BUFFER_LATENCY_US;
-  return base + HARDWARE_OUTPUT_LATENCY_US + PIPELINE_LATENCY_US;
+  return base + audio_output_get_hardware_latency_us() + PIPELINE_LATENCY_US;
 }
 
 void audio_timing_set_anchor(audio_timing_t *timing,

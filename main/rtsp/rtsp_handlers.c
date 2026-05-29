@@ -498,11 +498,12 @@ static void handle_get(int socket, rtsp_conn_t *conn, const rtsp_request_t *req,
     plist_array_end(&p);
 
     // Audio latencies array
-    // Type 96 (realtime/UDP): PTP sync + internal hardware compensation
-    // means audio exits the speaker at the correct wall-clock time;
-    // reporting additional latency would cause the sender to over-delay video.
-    // Type 103 (buffered/TCP): no timestamp-based scheduling, so the full
-    // jitter-buffer depth + hardware pipeline delay applies.
+    // Both type 96 (realtime/UDP) and type 103 (buffered/TCP) use PTP-based
+    // anchor timing with internal hardware-latency compensation in
+    // compute_early_us().  Report 0 so the sender does NOT also adjust its
+    // anchor — otherwise the hardware pipeline delay is subtracted twice and
+    // the ESP plays ahead of other speakers.  shairport-sync likewise
+    // reports no audioLatencies at all.
     plist_dict_array_begin(&p, "audioLatencies");
     plist_dict_begin(&p);
     plist_dict_int(&p, "type", 96);
@@ -514,8 +515,7 @@ static void handle_get(int socket, rtsp_conn_t *conn, const rtsp_request_t *req,
     plist_dict_int(&p, "type", 103);
     plist_dict_int(&p, "audioType", 0x64);
     plist_dict_int(&p, "inputLatencyMicros", 0);
-    plist_dict_int(&p, "outputLatencyMicros",
-                   audio_receiver_get_advertised_latency_us());
+    plist_dict_int(&p, "outputLatencyMicros", 0);
     plist_dict_end(&p);
     plist_array_end(&p);
 

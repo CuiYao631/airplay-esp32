@@ -1,80 +1,83 @@
 <!DOCTYPE html><html><head>
 <meta charset='UTF-8'>
 <meta name='viewport' content='width=device-width,initial-scale=1'>
-<title>WiFi Speedtest</title>
+<title>WiFi 测速</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,system-ui,sans-serif;background:linear-gradient(135deg,#1a1a2e,#16213e);min-height:100vh;padding:20px;color:#fff}
+body{font-family:-apple-system,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;background:linear-gradient(160deg,#1a1a1a 0%,#2d2d2d 50%,#1f1f1f 100%);min-height:100vh;padding:20px;color:#fff}
 .wrap{max-width:560px;margin:0 auto}
-h1{font-size:24px;margin-bottom:8px}
-.sub{color:#888;font-size:13px;margin-bottom:20px}
-.card{background:rgba(255,255,255,0.05);border-radius:12px;padding:18px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.1)}
-.card h2{font-size:15px;color:#e94560;margin-bottom:12px}
-.row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px}
-.row .lbl{color:#888}
-.row .val{font-weight:600;font-family:ui-monospace,monospace}
-.btn{padding:10px 16px;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;background:#e94560;color:#fff;width:100%;margin-top:10px}
-.btn:disabled{opacity:0.5;cursor:not-allowed}
-.btn.sec{background:rgba(255,255,255,0.1)}
-select,input{width:100%;padding:10px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:13px;margin-bottom:8px}
+h1{font-size:24px;margin-bottom:8px;font-weight:700;background:linear-gradient(135deg,#e0e0e0 0%,#a0a0a0 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sub{color:rgba(255,255,255,0.45);font-size:13px;margin-bottom:20px}
+.card{background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:20px;padding:22px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+.card h2{font-size:15px;font-weight:600;color:rgba(255,255,255,0.9);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card h2::before{content:'';width:3px;height:16px;background:linear-gradient(180deg,#b0b0b0,#707070);border-radius:2px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:13px}
+.row .lbl{color:rgba(255,255,255,0.45)}
+.row .val{font-weight:600;font-family:ui-monospace,monospace;color:rgba(255,255,255,0.9)}
+.btn{padding:11px 18px;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;background:linear-gradient(135deg,#6b6b6b 0%,#4a4a4a 100%);color:#fff;width:100%;margin-top:12px;box-shadow:0 4px 15px rgba(0,0,0,0.3);transition:all 0.25s}
+.btn:hover{box-shadow:0 6px 20px rgba(0,0,0,0.5);transform:translateY(-1px)}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+select,input{width:100%;padding:10px 14px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fff;font-size:13px;margin-bottom:8px}
+select:focus,input:focus{outline:none;border-color:rgba(180,180,180,0.4)}
 .bar{height:6px;background:rgba(0,0,0,0.3);border-radius:3px;overflow:hidden;margin-top:8px}
-.bar>div{height:100%;background:#e94560;width:0%;transition:width 0.1s}
-.big{font-size:28px;font-weight:700;color:#e94560}
-.unit{font-size:14px;color:#888;margin-left:4px}
-.log{font-family:ui-monospace,monospace;font-size:11px;color:#888;max-height:140px;overflow-y:auto;padding:8px;background:rgba(0,0,0,0.3);border-radius:6px;white-space:pre-wrap}
-a{color:#e94560}
+.bar>div{height:100%;background:linear-gradient(90deg,#6b6b6b,#999);width:0%;transition:width 0.1s}
+.big{font-size:28px;font-weight:700;color:rgba(255,255,255,0.9)}
+.unit{font-size:14px;color:rgba(255,255,255,0.4);margin-left:4px}
+.log{font-family:ui-monospace,monospace;font-size:11px;color:rgba(255,255,255,0.4);max-height:140px;overflow-y:auto;padding:10px;background:rgba(0,0,0,0.25);border-radius:10px;white-space:pre-wrap;border:1px solid rgba(255,255,255,0.05)}
+a{color:rgba(255,255,255,0.6);transition:color 0.2s}
+a:hover{color:#fff}
 </style></head><body>
 <div class='wrap'>
-<h1>WiFi Speedtest</h1>
-<p class='sub'>Measure latency and throughput between this browser and the device.</p>
+<h1>WiFi 测速</h1>
+<p class='sub'>测量浏览器与设备之间的延迟和吞吐量</p>
 
 <div class='card'>
-<h2>Ping (RTT)</h2>
-<div class='row'><span class='lbl'>Samples</span><span class='val' id='p-n'>0</span></div>
-<div class='row'><span class='lbl'>Min</span><span class='val' id='p-min'>—</span></div>
-<div class='row'><span class='lbl'>Avg</span><span class='val' id='p-avg'>—</span></div>
-<div class='row'><span class='lbl'>Max</span><span class='val' id='p-max'>—</span></div>
-<div class='row'><span class='lbl'>Jitter (stdev)</span><span class='val' id='p-jit'>—</span></div>
-<button class='btn' id='b-ping' onclick='runPing()'>Run 20 Pings</button>
+<h2>延迟 (RTT)</h2>
+<div class='row'><span class='lbl'>采样数</span><span class='val' id='p-n'>0</span></div>
+<div class='row'><span class='lbl'>最小值</span><span class='val' id='p-min'>—</span></div>
+<div class='row'><span class='lbl'>平均值</span><span class='val' id='p-avg'>—</span></div>
+<div class='row'><span class='lbl'>最大值</span><span class='val' id='p-max'>—</span></div>
+<div class='row'><span class='lbl'>抖动 (标准差)</span><span class='val' id='p-jit'>—</span></div>
+<button class='btn' id='b-ping' onclick='runPing()'>运行 20 次 Ping</button>
 </div>
 
 <div class='card'>
-<h2>Download (device → browser)</h2>
+<h2>下载 (设备 → 浏览器)</h2>
 <div style='text-align:center;padding:10px 0'><span class='big' id='dl-mbps'>0.00</span><span class='unit'>Mbit/s</span></div>
-<div class='row'><span class='lbl'>Bytes</span><span class='val' id='dl-bytes'>—</span></div>
-<div class='row'><span class='lbl'>Elapsed</span><span class='val' id='dl-time'>—</span></div>
+<div class='row'><span class='lbl'>字节数</span><span class='val' id='dl-bytes'>—</span></div>
+<div class='row'><span class='lbl'>耗时</span><span class='val' id='dl-time'>—</span></div>
 <div class='bar'><div id='dl-bar'></div></div>
-<label style='font-size:12px;color:#888;margin-top:10px;display:block'>Payload size</label>
+<label style='font-size:12px;color:rgba(255,255,255,0.4);margin-top:10px;display:block'>数据大小</label>
 <select id='dl-size'>
   <option value='262144'>256 KB</option>
   <option value='1048576' selected>1 MB</option>
   <option value='4194304'>4 MB</option>
   <option value='8388608'>8 MB</option>
 </select>
-<button class='btn' id='b-dl' onclick='runDownload()'>Start Download Test</button>
+<button class='btn' id='b-dl' onclick='runDownload()'>开始下载测试</button>
 </div>
 
 <div class='card'>
-<h2>Upload (browser → device)</h2>
+<h2>上传 (浏览器 → 设备)</h2>
 <div style='text-align:center;padding:10px 0'><span class='big' id='ul-mbps'>0.00</span><span class='unit'>Mbit/s</span></div>
-<div class='row'><span class='lbl'>Bytes</span><span class='val' id='ul-bytes'>—</span></div>
-<div class='row'><span class='lbl'>Elapsed</span><span class='val' id='ul-time'>—</span></div>
+<div class='row'><span class='lbl'>字节数</span><span class='val' id='ul-bytes'>—</span></div>
+<div class='row'><span class='lbl'>耗时</span><span class='val' id='ul-time'>—</span></div>
 <div class='bar'><div id='ul-bar'></div></div>
-<label style='font-size:12px;color:#888;margin-top:10px;display:block'>Payload size</label>
+<label style='font-size:12px;color:rgba(255,255,255,0.4);margin-top:10px;display:block'>数据大小</label>
 <select id='ul-size'>
   <option value='262144'>256 KB</option>
   <option value='1048576' selected>1 MB</option>
   <option value='4194304'>4 MB</option>
 </select>
-<button class='btn' id='b-ul' onclick='runUpload()'>Start Upload Test</button>
+<button class='btn' id='b-ul' onclick='runUpload()'>开始上传测试</button>
 </div>
 
 <div class='card'>
-<h2>Log</h2>
+<h2>日志</h2>
 <div class='log' id='log'></div>
 </div>
 
-<p style='text-align:center;margin-top:10px'><a href='/'>← Back to main</a></p>
+<p style='text-align:center;margin-top:10px'><a href='/'>← 返回首页</a></p>
 </div>
 
 <script>

@@ -1,63 +1,66 @@
 <!DOCTYPE html><html><head>
 <meta charset='UTF-8'>
 <meta name='viewport' content='width=device-width,initial-scale=1'>
-<title>EQ - AirPlay Receiver</title>
+<title>均衡器 - AirPlay 音频接收器</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,system-ui,sans-serif;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);min-height:100vh;padding:20px;color:#fff}
+body{font-family:-apple-system,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;background:linear-gradient(160deg,#1a1a1a 0%,#2d2d2d 50%,#1f1f1f 100%);min-height:100vh;padding:20px;color:#fff}
 .wrap{max-width:720px;margin:0 auto}
 .header{text-align:center;padding:20px 0}
-.header h1{font-size:24px;font-weight:600;margin-bottom:4px}
-.header p{color:#888;font-size:13px}
+.header h1{font-size:24px;font-weight:700;margin-bottom:6px;background:linear-gradient(135deg,#e0e0e0 0%,#a0a0a0 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header p{color:rgba(255,255,255,0.45);font-size:13px}
 .nav{text-align:center;margin-bottom:16px}
-.nav a{color:#e94560;text-decoration:none;font-size:13px}
-.card{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-radius:16px;padding:20px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.1)}
-.card h2{font-size:16px;font-weight:600;margin-bottom:16px;color:#e94560}
+.nav a{color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;transition:color 0.2s}
+.nav a:hover{color:#fff}
+.card{background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:20px;padding:24px;margin-bottom:18px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+.card h2{font-size:15px;font-weight:600;margin-bottom:18px;color:rgba(255,255,255,0.9);display:flex;align-items:center;gap:8px}
+.card h2::before{content:'';width:3px;height:16px;background:linear-gradient(180deg,#b0b0b0,#707070);border-radius:2px}
 .eq-container{display:flex;gap:4px;justify-content:center;align-items:flex-end;height:280px;padding:10px 0}
 .eq-band{display:flex;flex-direction:column;align-items:center;flex:1;min-width:0}
-.eq-band .val{font-size:11px;color:#e94560;font-weight:600;margin-bottom:4px;min-height:16px;text-align:center}
+.eq-band .val{font-size:11px;color:#b0b0b0;font-weight:600;margin-bottom:4px;min-height:16px;text-align:center}
 .eq-band input[type=range]{-webkit-appearance:none;appearance:none;writing-mode:vertical-lr;direction:rtl;width:28px;height:200px;background:transparent;cursor:pointer}
-.eq-band input[type=range]::-webkit-slider-runnable-track{width:4px;background:rgba(255,255,255,0.15);border-radius:2px}
-.eq-band input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#e94560;margin-left:-6px;cursor:pointer}
-.eq-band input[type=range]::-moz-range-track{width:4px;background:rgba(255,255,255,0.15);border-radius:2px}
-.eq-band input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#e94560;border:none;cursor:pointer}
-.eq-band .freq{font-size:10px;color:#888;margin-top:6px;text-align:center;white-space:nowrap}
+.eq-band input[type=range]::-webkit-slider-runnable-track{width:4px;background:rgba(255,255,255,0.12);border-radius:2px}
+.eq-band input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#888,#555);box-shadow:0 2px 6px rgba(0,0,0,0.4);margin-left:-6px;cursor:pointer}
+.eq-band input[type=range]::-moz-range-track{width:4px;background:rgba(255,255,255,0.12);border-radius:2px}
+.eq-band input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:linear-gradient(135deg,#888,#555);border:none;cursor:pointer}
+.eq-band .freq{font-size:10px;color:rgba(255,255,255,0.35);margin-top:6px;text-align:center;white-space:nowrap}
 .eq-scale{display:flex;flex-direction:column;justify-content:space-between;margin:48px 6px 25px 0;padding:0}
-.eq-scale span{font-size:10px;color:#555;text-align:right;min-width:28px}
+.eq-scale span{font-size:10px;color:rgba(255,255,255,0.3);text-align:right;min-width:28px}
 .eq-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-.btn{display:inline-block;padding:10px 16px;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s}
-.btn-primary{background:#e94560;color:#fff}
-.btn-primary:hover{background:#d63850}
-.btn-secondary{background:rgba(255,255,255,0.1);color:#fff}
-.btn-secondary:hover{background:rgba(255,255,255,0.2)}
-.btn:disabled{opacity:0.5;cursor:not-allowed}
+.btn{display:inline-block;padding:11px 18px;border:none;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.25s}
+.btn-primary{background:linear-gradient(135deg,#6b6b6b 0%,#4a4a4a 100%);color:#fff;box-shadow:0 4px 15px rgba(0,0,0,0.3)}
+.btn-primary:hover{box-shadow:0 6px 20px rgba(0,0,0,0.5);transform:translateY(-1px)}
+.btn-secondary{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.1)}
+.btn-secondary:hover{background:rgba(255,255,255,0.14)}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none!important}
 .presets{margin-top:12px}
-.presets select{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;padding:8px 12px;font-size:13px;cursor:pointer;min-width:160px}
-.presets select option{background:#16213e}
-.msg{padding:8px;border-radius:6px;margin-top:10px;font-size:13px}
-.msg.ok{background:rgba(27,67,50,0.5)}
-.msg.err{background:rgba(92,26,26,0.5)}
-.msg.info{background:rgba(15,52,96,0.5)}
+.presets select{background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fff;padding:10px 14px;font-size:13px;cursor:pointer;min-width:160px}
+.presets select option{background:#2d2d2d}
+.msg{padding:10px 12px;border-radius:8px;margin-top:12px;font-size:13px;font-weight:500;animation:fadeIn 0.3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.msg.ok{background:rgba(72,187,120,0.15);border:1px solid rgba(72,187,120,0.3);color:#68d391}
+.msg.err{background:rgba(245,101,101,0.15);border:1px solid rgba(245,101,101,0.3);color:#fc8181}
+.msg.info{background:rgba(160,160,160,0.12);border:1px solid rgba(160,160,160,0.3);color:#c0c0c0}
 </style></head><body>
 <div class='wrap'>
-<div class='header'><h1>Equalizer</h1><p>15-Band Parametric EQ</p></div>
-<div class='nav'><a href='/'>&#8592; Back to Settings</a></div>
-<div class='card'><h2>EQ Bands</h2>
+<div class='header'><h1>均衡器</h1><p>15 段参量均衡器</p></div>
+<div class='nav'><a href='/'>&#8592; 返回设置</a></div>
+<div class='card'><h2>EQ 频段</h2>
 <div style='display:flex'>
 <div class='eq-scale'><span>+15</span><span>+7</span><span>0</span><span>-7</span><span>-15</span></div>
 <div class='eq-container' id='eq-sliders'></div>
 </div>
 <div class='eq-actions'>
-<button class='btn btn-primary' id='apply-btn' onclick='applyEQ()'>Apply</button>
-<button class='btn btn-secondary' onclick='flatEQ()'>Flat (Reset)</button>
+<button class='btn btn-primary' id='apply-btn' onclick='applyEQ()'>应用</button>
+<button class='btn btn-secondary' onclick='flatEQ()'>重置 (平坦)</button>
 <div class='presets'>
 <select id='preset-sel' onchange='loadPreset(this.value)'>
-<option value=''>-- Presets --</option>
-<option value='bass_boost'>Bass Boost</option>
-<option value='treble_boost'>Treble Boost</option>
-<option value='v_shape'>V-Shape</option>
-<option value='vocal'>Vocal Presence</option>
-<option value='loudness'>Loudness</option>
+<option value=''>-- 预设 --</option>
+<option value='bass_boost'>低音增强</option>
+<option value='treble_boost'>高音增强</option>
+<option value='v_shape'>V 形曲线</option>
+<option value='vocal'>人声突出</option>
+<option value='loudness'>响度补偿</option>
 </select></div>
 </div>
 <div id='eq-msg'></div>
@@ -101,15 +104,15 @@ function msg(txt,type){
 async function loadEQ(){
   try{var r=await fetch('/api/eq');var d=await r.json();
     if(d.success&&d.gains){gains=d.gains;updateSliders();}}
-  catch(e){msg('Failed to load EQ','err');}
+  catch(e){msg('加载 EQ 失败','err');}
 }
 async function applyEQ(){
   document.getElementById('apply-btn').disabled=true;
   try{var r=await fetch('/api/eq',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({gains:gains})});
     var d=await r.json();
-    if(d.success){msg('EQ applied','ok');dirty=false;}
-    else{msg(d.error||'Failed','err');document.getElementById('apply-btn').disabled=false;}}
-  catch(e){msg('Error applying EQ','err');document.getElementById('apply-btn').disabled=false;}
+    if(d.success){msg('EQ 已应用','ok');dirty=false;}
+    else{msg(d.error||'应用失败','err');document.getElementById('apply-btn').disabled=false;}}
+  catch(e){msg('应用 EQ 出错','err');document.getElementById('apply-btn').disabled=false;}
 }
 function flatEQ(){
   gains=new Array(BANDS).fill(0);updateSliders();

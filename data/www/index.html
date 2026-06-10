@@ -4,75 +4,99 @@
 <title>AirPlay 音频接收器</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;background:linear-gradient(160deg,#1a1a1a 0%,#2d2d2d 50%,#1f1f1f 100%);min-height:100vh;padding:20px;color:#fff}
+body{font-family:-apple-system,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',system-ui,sans-serif;background:#141414;min-height:100vh;padding:20px;color:#fff}
 .wrap{max-width:500px;margin:0 auto}
-.header{text-align:center;padding:36px 0 28px}
-.header h1{font-size:30px;font-weight:700;margin-bottom:10px;background:linear-gradient(135deg,#e0e0e0 0%,#a0a0a0 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.header p{color:rgba(255,255,255,0.5);font-size:14px;letter-spacing:1px}
-.status-bar{background:rgba(160,160,160,0.1);border:1px solid rgba(160,160,160,0.25);border-radius:14px;padding:16px 20px;margin-bottom:24px;text-align:center;font-size:14px;font-weight:500;transition:all 0.3s}
-.status-bar.ok{background:rgba(72,187,120,0.15);border-color:rgba(72,187,120,0.3);color:#68d391}
-.status-bar.err{background:rgba(245,101,101,0.15);border-color:rgba(245,101,101,0.3);color:#fc8181}
-.card{background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:20px;padding:24px;margin-bottom:18px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 8px 32px rgba(0,0,0,0.2);transition:transform 0.2s,box-shadow 0.2s}
-.card:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,0.3)}
-.card h2{font-size:15px;font-weight:600;margin-bottom:18px;color:rgba(255,255,255,0.9);display:flex;align-items:center;gap:8px}
-.card h2::before{content:'';width:3px;height:16px;background:linear-gradient(180deg,#b0b0b0,#707070);border-radius:2px}
-.form-group{margin-bottom:16px}
-.form-group label{display:block;font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:8px;font-weight:500;letter-spacing:0.5px}
-input[type=text],input[type=password]{width:100%;padding:13px 16px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fff;font-size:14px;transition:border-color 0.2s,box-shadow 0.2s}
-input:focus{outline:none;border-color:rgba(180,180,180,0.6);box-shadow:0 0 0 3px rgba(180,180,180,0.12)}
-input::placeholder{color:rgba(255,255,255,0.25)}
-.btn{display:inline-block;padding:12px 22px;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.25s;text-decoration:none;text-align:center}
-.btn-primary{background:linear-gradient(135deg,#6b6b6b 0%,#4a4a4a 100%);color:#fff;box-shadow:0 4px 15px rgba(0,0,0,0.3)}
-.btn-primary:hover{box-shadow:0 6px 20px rgba(0,0,0,0.5);transform:translateY(-1px)}
-.btn-secondary{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.1)}
-.btn-secondary:hover{background:rgba(255,255,255,0.14);border-color:rgba(255,255,255,0.2)}
-.btn-danger{background:linear-gradient(135deg,#e53e3e 0%,#c53030 100%);color:#fff;box-shadow:0 4px 15px rgba(229,62,62,0.3)}
-.btn-danger:hover{box-shadow:0 6px 20px rgba(229,62,62,0.5);transform:translateY(-1px)}
-.btn-block{width:100%;margin-top:12px}
-.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none!important;box-shadow:none!important}
-.wifi-list{max-height:200px;overflow-y:auto;margin:14px 0;border-radius:10px}
-.wifi-list::-webkit-scrollbar{width:4px}
-.wifi-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:2px}
-.wifi-item{padding:13px 16px;background:rgba(0,0,0,0.15);margin-bottom:4px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:all 0.2s;border:1px solid transparent}
-.wifi-item:hover{background:rgba(180,180,180,0.1);border-color:rgba(180,180,180,0.25)}
-.wifi-item.sel{background:rgba(180,180,180,0.15);border-color:rgba(180,180,180,0.4)}
-.wifi-item .ssid{font-weight:500;font-size:14px}
-.wifi-item .rssi{font-size:12px;color:rgba(255,255,255,0.4)}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.info-item{background:rgba(0,0,0,0.2);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.05)}
-.info-item label{font-size:11px;color:rgba(255,255,255,0.4);display:block;margin-bottom:6px;font-weight:500}
-.info-item span{font-size:14px;font-weight:500;color:rgba(255,255,255,0.9)}
-.msg{padding:12px 14px;border-radius:8px;margin-top:12px;font-size:13px;font-weight:500;animation:fadeIn 0.3s}
+.header{text-align:center;padding:40px 0 32px}
+.header .icon{width:56px;height:56px;margin:0 auto 16px;background:rgba(255,255,255,0.06);border-radius:16px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.08)}
+.header .icon svg{width:28px;height:28px;fill:rgba(255,255,255,0.7)}
+.header h1{font-size:26px;font-weight:700;margin-bottom:8px;color:rgba(255,255,255,0.95);letter-spacing:-0.5px}
+.header p{color:rgba(255,255,255,0.4);font-size:13px;letter-spacing:0.5px}
+.status-bar{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px 18px;margin-bottom:20px;text-align:center;font-size:13px;font-weight:500;color:rgba(255,255,255,0.5);transition:all 0.3s}
+.status-bar.ok{background:rgba(72,187,120,0.08);border-color:rgba(72,187,120,0.2);color:#68d391}
+.status-bar.err{background:rgba(245,101,101,0.08);border-color:rgba(245,101,101,0.2);color:#fc8181}
+.card{background:rgba(255,255,255,0.03);border-radius:16px;padding:22px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.06);transition:border-color 0.2s}
+.card:hover{border-color:rgba(255,255,255,0.12)}
+.card h2{font-size:14px;font-weight:600;margin-bottom:16px;color:rgba(255,255,255,0.85);display:flex;align-items:center;gap:10px}
+.card h2 .ico{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card h2 .ico svg{width:14px;height:14px}
+.ico-wifi{background:rgba(99,179,237,0.12)}.ico-wifi svg{fill:#63b3ed}
+.ico-device{background:rgba(159,122,234,0.12)}.ico-device svg{fill:#9f7aea}
+.ico-fw{background:rgba(237,137,54,0.12)}.ico-fw svg{fill:#ed8936}
+.ico-sys{background:rgba(72,187,120,0.12)}.ico-sys svg{fill:#48bb78}
+.ico-log{background:rgba(160,160,160,0.12)}.ico-log svg{fill:#a0a0a0}
+.ico-speed{background:rgba(237,100,166,0.12)}.ico-speed svg{fill:#ed64a6}
+.ico-eq{background:rgba(237,203,54,0.12)}.ico-eq svg{fill:#ecc94b}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px}
+input[type=text],input[type=password]{width:100%;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#fff;font-size:14px;transition:border-color 0.2s,box-shadow 0.2s}
+input:focus{outline:none;border-color:rgba(255,255,255,0.25);box-shadow:0 0 0 3px rgba(255,255,255,0.04)}
+input::placeholder{color:rgba(255,255,255,0.2)}
+.btn{display:inline-block;padding:10px 18px;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;text-decoration:none;text-align:center}
+.btn-primary{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.9);border:1px solid rgba(255,255,255,0.12)}
+.btn-primary:hover{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.2)}
+.btn-secondary{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.08)}
+.btn-secondary:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8)}
+.btn-danger{background:rgba(245,101,101,0.1);color:#fc8181;border:1px solid rgba(245,101,101,0.2)}
+.btn-danger:hover{background:rgba(245,101,101,0.18)}
+.btn-block{width:100%;margin-top:10px}
+.btn:disabled{opacity:0.3;cursor:not-allowed}
+.wifi-list{max-height:200px;overflow-y:auto;margin:12px 0;border-radius:8px}
+.wifi-list::-webkit-scrollbar{width:3px}
+.wifi-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px}
+.wifi-item{padding:11px 14px;background:rgba(255,255,255,0.03);margin-bottom:3px;border-radius:6px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:all 0.15s;border:1px solid transparent}
+.wifi-item:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.1)}
+.wifi-item.sel{background:rgba(99,179,237,0.08);border-color:rgba(99,179,237,0.25)}
+.wifi-item .ssid{font-weight:500;font-size:13px}
+.wifi-item .rssi{font-size:11px;color:rgba(255,255,255,0.3)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.info-item{background:rgba(255,255,255,0.03);padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04)}
+.info-item label{font-size:10px;color:rgba(255,255,255,0.35);display:block;margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:0.3px}
+.info-item span{font-size:13px;font-weight:500;color:rgba(255,255,255,0.85)}
+.msg{padding:10px 12px;border-radius:6px;margin-top:10px;font-size:12px;font-weight:500;animation:fadeIn 0.3s}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-.msg.ok{background:rgba(72,187,120,0.15);border:1px solid rgba(72,187,120,0.3);color:#68d391}
-.msg.err{background:rgba(245,101,101,0.15);border:1px solid rgba(245,101,101,0.3);color:#fc8181}
-.msg.info{background:rgba(160,160,160,0.12);border:1px solid rgba(160,160,160,0.3);color:#c0c0c0}
-.file-row{display:flex;gap:12px;align-items:center}
-.file-name{flex:1;font-size:13px;color:rgba(255,255,255,0.4)}
+.msg.ok{background:rgba(72,187,120,0.1);border:1px solid rgba(72,187,120,0.2);color:#68d391}
+.msg.err{background:rgba(245,101,101,0.1);border:1px solid rgba(245,101,101,0.2);color:#fc8181}
+.msg.info{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.6)}
+.file-row{display:flex;gap:10px;align-items:center}
+.file-name{flex:1;font-size:12px;color:rgba(255,255,255,0.35)}
 .actions{display:flex;gap:10px;margin-top:14px}
-.card-desc{color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:14px;line-height:1.5}
+.card-desc{color:rgba(255,255,255,0.35);font-size:12px;margin-bottom:12px;line-height:1.5}
+.link-card{display:flex;align-items:center;gap:14px;cursor:pointer;text-decoration:none}
+.link-card .card-text{flex:1}
+.link-card .card-text h3{font-size:13px;color:rgba(255,255,255,0.85);font-weight:500;margin-bottom:3px}
+.link-card .card-text p{font-size:11px;color:rgba(255,255,255,0.35)}
+.link-card .arr{color:rgba(255,255,255,0.2);font-size:18px}
+.divider{height:1px;background:rgba(255,255,255,0.05);margin:6px 0 14px}
 </style></head><body>
 <div class='wrap'>
-<div class='header'><h1>AirPlay 音频接收器</h1><p>ESP32 设备配置面板</p></div>
+<div class='header'>
+<div class='icon'><svg viewBox='0 0 24 24'><path d='M12 1C5.9 1 1 5.9 1 12s4.9 11 11 11 11-4.9 11-11S18.1 1 12 1zm0 3.5c3 0 5.7 1.2 7.6 3.2l-1.5 1.5C16.5 7.6 14.4 6.7 12 6.7S7.5 7.6 5.9 9.2L4.4 7.7C6.3 5.7 9 4.5 12 4.5zm0 4c1.8 0 3.4.7 4.6 1.9l-1.5 1.5c-.8-.8-1.9-1.2-3.1-1.2s-2.3.5-3.1 1.2L7.4 10.4C8.6 9.2 10.2 8.5 12 8.5zm0 4c.6 0 1.1.2 1.5.7l-1.5 1.5-1.5-1.5c.4-.5.9-.7 1.5-.7z'/></svg></div>
+<h1>AirPlay 音频接收器</h1>
+<p>ESP32-S3 设备配置</p>
+</div>
 <div id='status-bar' class='status-bar'>正在加载...</div>
-<div class='card'><h2>WiFi 网络</h2>
+
+<div class='card'><h2><span class='ico ico-wifi'><svg viewBox='0 0 24 24'><path d='M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z'/></svg></span>WiFi 网络</h2>
 <button class='btn btn-secondary' onclick='scanWiFi()'>扫描网络</button>
 <div id='wifi-list' class='wifi-list'></div>
 <div class='form-group'><label>网络名称 (SSID)</label><input type='text' id='wifi-ssid' placeholder='输入或选择网络'></div>
 <div class='form-group'><label>密码</label><input type='password' id='wifi-pass' placeholder='输入密码'></div>
 <button class='btn btn-primary btn-block' onclick='saveWiFi()'>连接 WiFi</button>
 <div id='wifi-msg'></div></div>
-<div class='card'><h2>设备设置</h2>
+
+<div class='card'><h2><span class='ico ico-device'><svg viewBox='0 0 24 24'><path d='M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 16c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm4-8H8V6h8v4z'/></svg></span>设备设置</h2>
 <div class='form-group'><label>AirPlay 设备名称</label><input type='text' id='dev-name' placeholder='我的音箱'></div>
 <button class='btn btn-primary' onclick='saveName()'>保存名称</button>
 <div id='name-msg'></div></div>
-<div class='card'><h2>固件升级</h2>
+
+<div class='card'><h2><span class='ico ico-fw'><svg viewBox='0 0 24 24'><path d='M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z'/></svg></span>固件升级</h2>
 <div class='file-row'><input type='file' id='fw-file' accept='.bin' style='display:none'>
 <button class='btn btn-secondary' onclick='document.getElementById("fw-file").click()'>选择文件</button>
 <span class='file-name' id='fw-name'>未选择文件</span></div>
 <button class='btn btn-primary btn-block' id='ota-btn' onclick='startOTA()' disabled>上传固件</button>
 <div id='ota-msg'></div></div>
-<div class='card'><h2>系统信息</h2>
+
+<div class='card'><h2><span class='ico ico-sys'><svg viewBox='0 0 24 24'><path d='M13 2.05v2.02c3.95.49 7 3.85 7 7.93 0 1.45-.39 2.81-1.06 3.98l1.46 1.46C21.39 15.93 22 14.04 22 12c0-4.97-3.64-9.09-8.4-9.85L13 2.05zM12 4c-4.42 0-8 3.58-8 8s3.58 8 8 8c1.85 0 3.55-.63 4.9-1.69l-1.44-1.44C14.47 17.59 13.28 18 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6v4l5-5-5-5v4z'/></svg></span>系统信息</h2>
 <div class='info-grid'>
 <div class='info-item'><label>IP 地址</label><span id='info-ip'>-</span></div>
 <div class='info-item'><label>MAC 地址</label><span id='info-mac'>-</span></div>
@@ -87,15 +111,19 @@ input::placeholder{color:rgba(255,255,255,0.25)}
 </div>
 <div class='actions'><button class='btn btn-danger' onclick='restart()'>重启设备</button></div>
 </div>
-<div class='card'><h2>系统日志</h2>
-<p class='card-desc'>通过 WebSocket 实时查看 ESP 日志输出</p>
-<a href='/logs' class='btn btn-primary'>打开日志</a></div>
-<div class='card'><h2>WiFi 测速</h2>
-<p class='card-desc'>测量到本设备的延迟和吞吐量</p>
-<a href='/speedtest' class='btn btn-primary'>打开测速</a></div>
-<div class='card' id='eq-card' style='display:none'><h2>均衡器</h2>
-<p class='card-desc'>15 段参量均衡器，用于 DAC 音频调节</p>
-<a href='/eq' class='btn btn-primary'>打开均衡器</a></div>
+
+<div class='card'>
+<a href='/logs' class='link-card'><span class='ico ico-log'><svg viewBox='0 0 24 24'><path d='M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-2 10H6v-2h12v2zm0-4H6v-2h12v2z'/></svg></span><div class='card-text'><h3>系统日志</h3><p>通过 WebSocket 实时查看日志</p></div><span class='arr'>›</span></a>
+</div>
+
+<div class='card'>
+<a href='/speedtest' class='link-card'><span class='ico ico-speed'><svg viewBox='0 0 24 24'><path d='M20.38 8.57l-1.23 1.85a8 8 0 01-.22 7.58H5.07A8 8 0 0115.58 6.85l1.85-1.23A10 10 0 003.35 19a2 2 0 001.72 1h13.85a2 2 0 001.74-1 10 10 0 00-.27-10.44zm-9.79 6.84a2 2 0 002.83 0l5.66-8.49-8.49 5.66a2 2 0 000 2.83z'/></svg></span><div class='card-text'><h3>WiFi 测速</h3><p>测量延迟和吞吐量</p></div><span class='arr'>›</span></a>
+</div>
+
+<div class='card' id='eq-card' style='display:none'>
+<a href='/eq' class='link-card'><span class='ico ico-eq'><svg viewBox='0 0 24 24'><path d='M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z'/></svg></span><div class='card-text'><h3>均衡器</h3><p>15 段参量 EQ 调节</p></div><span class='arr'>›</span></a>
+</div>
+
 </div>
 <script>
 function msg(id,txt,type){var e=document.getElementById(id);if(e){e.innerHTML='<div class="msg '+type+'">'+txt+'</div>';setTimeout(function(){e.innerHTML='';},4000);}}

@@ -1,232 +1,215 @@
-<!DOCTYPE html><html><head>
+<!DOCTYPE html><html lang='zh-CN'><head>
 <meta charset='UTF-8'>
 <meta name='viewport' content='width=device-width,initial-scale=1'>
-<title>AirPlay Receiver</title>
+<title>AirPlay 接收器</title>
 <style>
+:root{
+  --accent:#e94560;--accent-hover:#ff5c78;--accent-soft:rgba(233,69,96,0.15);
+  --bg-card:rgba(255,255,255,0.06);--bg-input:rgba(0,0,0,0.28);
+  --border:rgba(255,255,255,0.12);--text:#f5f5f7;--text-dim:#9aa0ac;
+  --ok:#2dc98a;--err:#ff5a5a;--radius:16px;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,system-ui,sans-serif;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);min-height:100vh;padding:20px;color:#fff}
-.wrap{max-width:480px;margin:0 auto}
-.header{text-align:center;padding:30px 0}
-.header h1{font-size:28px;font-weight:600;margin-bottom:8px}
-.header p{color:#888;font-size:14px}
-.status-bar{background:#0f3460;border-radius:12px;padding:16px;margin-bottom:20px;text-align:center}
-.status-bar.ok{background:#1b4332}
-.status-bar.err{background:#5c1a1a}
-.card{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-radius:16px;padding:20px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.1)}
-.card h2{font-size:16px;font-weight:600;margin-bottom:16px;color:#e94560}
-.form-group{margin-bottom:14px}
-.form-group label{display:block;font-size:12px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
-input[type=text],input[type=password]{width:100%;padding:12px 14px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:14px}
-input:focus{outline:none;border-color:#e94560}
-.btn{display:inline-block;padding:12px 20px;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s}
-.btn-primary{background:#e94560;color:#fff}
-.btn-primary:hover{background:#d63850}
-.btn-secondary{background:rgba(255,255,255,0.1);color:#fff}
-.btn-secondary:hover{background:rgba(255,255,255,0.2)}
-.btn-danger{background:#dc3545;color:#fff}
-.btn-danger:hover{background:#c82333}
-.btn-block{width:100%;margin-top:10px}
-.btn:disabled{opacity:0.5;cursor:not-allowed}
-.wifi-list{max-height:180px;overflow-y:auto;margin:12px 0;border-radius:8px}
-.wifi-item{padding:12px;background:rgba(0,0,0,0.2);margin-bottom:4px;border-radius:6px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
-.wifi-item:hover{background:rgba(233,69,96,0.2)}
-.wifi-item.sel{background:rgba(233,69,96,0.3);border:1px solid #e94560}
-.wifi-item .ssid{font-weight:500}
-.wifi-item .rssi{font-size:12px;color:#888}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.info-item{background:rgba(0,0,0,0.2);padding:12px;border-radius:8px}
-.info-item label{font-size:11px;color:#888;display:block;margin-bottom:4px}
-.info-item span{font-size:14px;font-weight:500}
-.msg{padding:10px;border-radius:6px;margin-top:10px;font-size:13px}
-.msg.ok{background:rgba(27,67,50,0.5)}
-.msg.err{background:rgba(92,26,26,0.5)}
-.msg.info{background:rgba(15,52,96,0.5)}
-.file-row{display:flex;gap:10px;align-items:center}
-.file-name{flex:1;font-size:13px;color:#888}
-.actions{display:flex;gap:10px;margin-top:10px}
-.slider-row{display:flex;align-items:center;gap:12px}
-.slider-row input[type=range]{flex:1;accent-color:#e94560}
-.slider-row span{font-size:13px;color:#888;min-width:32px;text-align:right}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+  background:radial-gradient(circle at 20% 0%,#243b6b 0%,#1a1a2e 45%,#0f1220 100%);
+  min-height:100vh;padding:24px 16px;color:var(--text);-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:520px;margin:0 auto}
+.header{text-align:center;padding:20px 0 32px}
+.header .logo{
+  width:64px;height:64px;margin:0 auto 16px;border-radius:20px;
+  background:linear-gradient(135deg,var(--accent),#8a2be2);
+  display:flex;align-items:center;justify-content:center;font-size:32px;
+  box-shadow:0 10px 30px rgba(233,69,96,0.35);
+}
+.header h1{font-size:30px;font-weight:700;letter-spacing:-0.5px;margin-bottom:6px}
+.header p{color:var(--text-dim);font-size:14px}
+.status-bar{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:14px;
+  padding:16px 18px;margin-bottom:22px;text-align:center;font-size:15px;font-weight:500;
+  display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.3s;
+}
+.status-bar::before{content:'';width:10px;height:10px;border-radius:50%;background:var(--text-dim);flex:0 0 auto}
+.status-bar.ok{background:rgba(45,201,138,0.12);border-color:rgba(45,201,138,0.3)}
+.status-bar.ok::before{background:var(--ok);box-shadow:0 0 10px var(--ok)}
+.status-bar.err{background:rgba(255,90,90,0.1);border-color:rgba(255,90,90,0.3)}
+.status-bar.err::before{background:var(--err);box-shadow:0 0 10px var(--err)}
+.card{
+  background:var(--bg-card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-radius:var(--radius);padding:22px;margin-bottom:18px;border:1px solid var(--border);
+  box-shadow:0 8px 32px rgba(0,0,0,0.18);
+}
+.card h2{font-size:17px;font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.card h2 .ico{font-size:19px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:8px;font-weight:500;letter-spacing:0.3px}
+input[type=text],input[type=password]{
+  width:100%;padding:13px 15px;background:var(--bg-input);border:1px solid var(--border);
+  border-radius:10px;color:var(--text);font-size:15px;transition:border-color 0.2s,box-shadow 0.2s;
+}
+input[type=text]::placeholder,input[type=password]::placeholder{color:#6b7280}
+input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:12px 22px;border:none;border-radius:10px;font-size:15px;font-weight:600;
+  cursor:pointer;transition:transform 0.12s,background 0.2s,box-shadow 0.2s;font-family:inherit;
+}
+.btn:active{transform:scale(0.97)}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(233,69,96,0.35)}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-secondary{background:rgba(255,255,255,0.08);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:rgba(255,255,255,0.14)}
+.btn-danger{background:rgba(255,90,90,0.15);color:#ff8080;border:1px solid rgba(255,90,90,0.3)}
+.btn-danger:hover{background:rgba(255,90,90,0.25)}
+.btn-block{width:100%;margin-top:12px}
+.btn:disabled{opacity:0.45;cursor:not-allowed;transform:none}
+.wifi-list{max-height:200px;overflow-y:auto;margin:14px 0;display:flex;flex-direction:column;gap:6px}
+.wifi-list::-webkit-scrollbar{width:6px}
+.wifi-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.wifi-item{
+  padding:13px 15px;background:var(--bg-input);border:1px solid transparent;border-radius:10px;
+  cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:all 0.15s;
+}
+.wifi-item:hover{background:var(--accent-soft)}
+.wifi-item.sel{background:var(--accent-soft);border-color:var(--accent)}
+.wifi-item .ssid{font-weight:500;font-size:15px}
+.wifi-item .rssi{font-size:12px;color:var(--text-dim)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.info-item{background:var(--bg-input);padding:14px;border-radius:12px;border:1px solid var(--border)}
+.info-item label{font-size:11px;color:var(--text-dim);display:block;margin-bottom:6px;letter-spacing:0.3px}
+.info-item span{font-size:15px;font-weight:600;word-break:break-all}
+.msg{padding:11px 14px;border-radius:10px;margin-top:12px;font-size:13px;font-weight:500}
+.msg.ok{background:rgba(45,201,138,0.15);color:#5eead4;border:1px solid rgba(45,201,138,0.3)}
+.msg.err{background:rgba(255,90,90,0.15);color:#ff9b9b;border:1px solid rgba(255,90,90,0.3)}
+.msg.info{background:rgba(90,150,255,0.12);color:#9dc0ff;border:1px solid rgba(90,150,255,0.25)}
+.file-row{display:flex;gap:12px;align-items:center}
+.file-name{flex:1;font-size:13px;color:var(--text-dim)}
+.actions{display:flex;gap:12px;margin-top:14px}
+.slider-row{display:flex;align-items:center;gap:14px}
+.slider-row input[type=range]{flex:1;accent-color:var(--accent);height:6px}
+.slider-row span{font-size:14px;color:var(--text-dim);min-width:42px;text-align:right;font-weight:600}
+.link-card{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.link-card .desc{flex:1}
+.link-card .desc p{color:var(--text-dim);font-size:13px;margin-top:4px}
+.footer{text-align:center;color:var(--text-dim);font-size:12px;padding:16px 0 8px}
 </style></head><body>
 <div class='wrap'>
-<div class='header'><h1>AirPlay Receiver</h1><p>ESP32 Configuration Panel</p></div>
-<div id='status-bar' class='status-bar'>Loading...</div>
-<div class='card'><h2>WiFi Network</h2>
-<button class='btn btn-secondary' onclick='scanWiFi()'>Scan Networks</button>
+<div class='header'>
+<div class='logo'>🎵</div>
+<h1>AirPlay 接收器</h1><p>ESP32 配置面板</p></div>
+<div id='status-bar' class='status-bar'>加载中...</div>
+<div class='card'><h2><span class='ico'>📶</span>WiFi 网络</h2>
+<button class='btn btn-secondary' onclick='scanWiFi()'>🔍 扫描网络</button>
 <div id='wifi-list' class='wifi-list'></div>
-<div class='form-group'><label>Network Name (SSID)</label><input type='text' id='wifi-ssid' placeholder='Enter or select network'></div>
-<div class='form-group'><label>Password</label><input type='password' id='wifi-pass' placeholder='Enter password'></div>
-<button class='btn btn-primary btn-block' onclick='saveWiFi()'>Connect to WiFi</button>
+<div class='form-group'><label>网络名称 (SSID)</label><input type='text' id='wifi-ssid' placeholder='输入或选择网络'></div>
+<div class='form-group'><label>密码</label><input type='password' id='wifi-pass' placeholder='输入密码'></div>
+<button class='btn btn-primary btn-block' onclick='saveWiFi()'>连接 WiFi</button>
 <div id='wifi-msg'></div></div>
-<div class='card'><h2>Device Settings</h2>
-<div class='form-group'><label>AirPlay Device Name</label><input type='text' id='dev-name' placeholder='My Speaker'></div>
-<button class='btn btn-primary' onclick='saveName()'>Save Name</button>
+<div class='card'><h2><span class='ico'>⚙️</span>设备设置</h2>
+<div class='form-group'><label>AirPlay 设备名称</label><input type='text' id='dev-name' placeholder='我的音箱'></div>
+<button class='btn btn-primary' onclick='saveName()'>保存名称</button>
 <div id='name-msg'></div>
-<div class='form-group' style='margin-top:18px'><label for='led-brightness'>LED Brightness</label>
+<div class='form-group' style='margin-top:20px'><label for='led-brightness'>LED 亮度</label>
 <div class='slider-row'><input type='range' id='led-brightness' min='0' max='255' value='128' oninput='document.getElementById("led-pct").textContent=Math.round(this.value/255*100)+"%"'>
 <span id='led-pct'>50%</span></div></div>
-<button class='btn btn-secondary' onclick='saveBrightness()'>Save Brightness</button>
-<div id='brightness-msg'></div>
-<div id='chan-group'>
-<div class='form-group' style='margin-top:18px'><label for='chan-mode'>Output Channel</label>
-<select id='chan-mode' onchange='saveChannel()'>
-<option value='0'>Stereo</option>
-<option value='1'>Left only</option>
-<option value='2'>Right only</option>
-<option value='3'>Mono (L+R)</option>
-</select></div>
-<div id='chan-msg'></div></div>
-<div id='dual-group' style='display:none;margin-top:18px'>
-<div class='form-group'><label for='dual-mode'>DAC Configuration</label>
-<select id='dual-mode' onchange='saveDual()'>
-<option value='0'>2.1 (Satellites / Sub)</option>
-<option value='1'>Bi-Amp</option>
-</select></div>
-<div id='dual-msg'></div></div>
-<div id='eq-link' style='display:none;margin-top:18px'>
-<a href='/eq' class='btn btn-secondary'>EQ Settings</a></div>
-</div>
-<div class='card'><h2>Firmware Update</h2>
+<button class='btn btn-secondary' onclick='saveBrightness()'>保存亮度</button>
+<div id='brightness-msg'></div></div>
+<div class='card'><h2><span class='ico'>⬆️</span>固件更新</h2>
 <div class='file-row'><input type='file' id='fw-file' accept='.bin' style='display:none'>
-<button class='btn btn-secondary' onclick='document.getElementById("fw-file").click()'>Choose File</button>
-<span class='file-name' id='fw-name'>No file selected</span></div>
-<button class='btn btn-primary btn-block' id='ota-btn' onclick='startOTA()' disabled>Upload Firmware</button>
+<button class='btn btn-secondary' onclick='document.getElementById("fw-file").click()'>选择文件</button>
+<span class='file-name' id='fw-name'>未选择文件</span></div>
+<button class='btn btn-primary btn-block' id='ota-btn' onclick='startOTA()' disabled>上传固件</button>
 <div id='ota-msg'></div></div>
-<div class='card'><h2>System</h2>
+<div class='card'><h2><span class='ico'>📊</span>系统信息</h2>
 <div class='info-grid'>
-<div class='info-item'><label>IP Address</label><span id='info-ip'>-</span></div>
-<div class='info-item'><label>MAC Address</label><span id='info-mac'>-</span></div>
-<div class='info-item'><label>Device Name</label><span id='info-name'>-</span></div>
-<div class='info-item'><label>Free Memory</label><span id='info-heap'>-</span></div>
-<div class='info-item'><label>Firmware</label><span id='info-fw'>-</span></div>
-<div class='info-item'><label>WiFi SSID</label><span id='info-ssid'>-</span></div>
-<div class='info-item'><label>WiFi RSSI</label><span id='info-rssi'>-</span></div>
-<div class='info-item'><label>WiFi Channel</label><span id='info-chan'>-</span></div>
-<div class='info-item'><label>WiFi PHY</label><span id='info-phy'>-</span></div>
+<div class='info-item'><label>IP 地址</label><span id='info-ip'>-</span></div>
+<div class='info-item'><label>MAC 地址</label><span id='info-mac'>-</span></div>
+<div class='info-item'><label>设备名称</label><span id='info-name'>-</span></div>
+<div class='info-item'><label>可用内存</label><span id='info-heap'>-</span></div>
+<div class='info-item'><label>固件版本</label><span id='info-fw'>-</span></div>
+<div class='info-item'><label>WiFi 名称</label><span id='info-ssid'>-</span></div>
+<div class='info-item'><label>WiFi 信号</label><span id='info-rssi'>-</span></div>
+<div class='info-item'><label>WiFi 信道</label><span id='info-chan'>-</span></div>
+<div class='info-item'><label>WiFi 协议</label><span id='info-phy'>-</span></div>
 <div class='info-item' style='grid-column:1/-1'><label>WiFi BSSID</label><span id='info-bssid'>-</span></div>
 </div>
-<div class='actions'><button class='btn btn-danger' onclick='restart()'>Restart Device</button></div>
+<div class='actions'><button class='btn btn-danger' onclick='restart()'>重启设备</button></div>
 </div>
-<div class='card'><h2>System Logs</h2>
-<p style='color:#888;font-size:13px;margin-bottom:12px'>Live ESP log output via WebSocket</p>
-<a href='/logs' class='btn btn-primary'>Open Log Viewer</a></div>
-<div class='card'><h2>WiFi Speedtest</h2>
-<p style='color:#888;font-size:13px;margin-bottom:12px'>Measure latency and throughput to this device</p>
-<a href='/speedtest' class='btn btn-primary'>Open Speedtest</a></div>
+<div class='card'><div class='link-card'><div class='desc'><h2 style='margin:0'><span class='ico'>📜</span>系统日志</h2>
+<p>通过 WebSocket 实时查看 ESP 日志输出</p></div>
+<a href='/logs' class='btn btn-primary'>打开</a></div></div>
+<div class='card'><div class='link-card'><div class='desc'><h2 style='margin:0'><span class='ico'>🚀</span>WiFi 测速</h2>
+<p>测量到本设备的延迟和吞吐量</p></div>
+<a href='/speedtest' class='btn btn-primary'>打开</a></div></div>
+<div class='card' id='eq-card' style='display:none'><div class='link-card'><div class='desc'><h2 style='margin:0'><span class='ico'>🎚️</span>均衡器</h2>
+<p>用于 DAC 调音的 15 段参数均衡器</p></div>
+<a href='/eq' class='btn btn-primary'>打开</a></div></div>
+<div class='footer'>ESP32 AirPlay 2 接收器</div>
 </div>
 <script>
 function msg(id,txt,type){var e=document.getElementById(id);if(e){e.innerHTML='<div class="msg '+type+'">'+txt+'</div>';setTimeout(function(){e.innerHTML='';},4000);}}
 async function scanWiFi(){
-  var l=document.getElementById('wifi-list');l.innerHTML='<div class="msg info">Scanning...</div>';
+  var l=document.getElementById('wifi-list');l.innerHTML='<div class="msg info">扫描中...</div>';
   try{var r=await fetch('/api/wifi/scan');var d=await r.json();
     if(d.success&&d.networks.length>0){l.innerHTML='';d.networks.forEach(function(n){
       var i=document.createElement('div');i.className='wifi-item';
       i.innerHTML='<span class="ssid">'+n.ssid+'</span><span class="rssi">'+n.rssi+' dBm</span>';
       i.onclick=function(){document.querySelectorAll('.wifi-item').forEach(function(x){x.classList.remove('sel');});i.classList.add('sel');document.getElementById('wifi-ssid').value=n.ssid;};
       l.appendChild(i);});}
-    else{l.innerHTML='<div class="msg info">No networks found</div>';}}
-  catch(e){l.innerHTML='<div class="msg err">Scan failed</div>';}}
+    else{l.innerHTML='<div class="msg info">未发现网络</div>';}}
+  catch(e){l.innerHTML='<div class="msg err">扫描失败</div>';}}
 async function saveWiFi(){
   var s=document.getElementById('wifi-ssid').value.trim();var p=document.getElementById('wifi-pass').value;
-  if(!s){msg('wifi-msg','Enter network name','err');return;}
+  if(!s){msg('wifi-msg','请输入网络名称','err');return;}
   try{var r=await fetch('/api/wifi/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ssid:s,password:p})});
-    var d=await r.json();if(d.success){msg('wifi-msg','Saved! Restarting...','ok');}else{msg('wifi-msg',d.error,'err');}}
-  catch(e){msg('wifi-msg','Error','err');}}
+    var d=await r.json();if(d.success){msg('wifi-msg','已保存！正在重启...','ok');}else{msg('wifi-msg',d.error,'err');}}
+  catch(e){msg('wifi-msg','出错了','err');}}
 async function loadBrightness(){
   try{var r=await fetch('/api/led/brightness');var d=await r.json();
     if(d.success){var s=document.getElementById('led-brightness');s.value=d.brightness;
       document.getElementById('led-pct').textContent=Math.round(d.brightness/255*100)+'%';}}
-  catch(e){console.warn('Could not load LED brightness',e);}}
+  catch(e){console.warn('无法加载 LED 亮度',e);}}
 async function saveBrightness(){
   var v=Number.parseInt(document.getElementById('led-brightness').value,10);
   try{var r=await fetch('/api/led/brightness',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({brightness:v})});
-    var d=await r.json();if(d.success){msg('brightness-msg','Saved!','ok');}else{msg('brightness-msg',d.error,'err');}}
-  catch(e){msg('brightness-msg','Error','err');console.error('saveBrightness failed',e);}}
-async function loadChannel(){
-  try{var r=await fetch('/api/audio/channel');var d=await r.json();
-    if(d.success){document.getElementById('chan-mode').value=String(d.mode);
-      chanLocked=!!d.locked;}}
-  catch(e){console.warn('Could not load channel mode',e);}
-  applyAmpLayout();}
-var dualDevices=1;
-var dualMode=0;
-var chanLocked=false;
-var DUAL_WARN={
-  0:'Switch to 2.1 (Satellites / Sub)?\n\nThe second amplifier is reconfigured as PBTL mono: its OUT_A and OUT_B terminals must be bridged together and wired to a single subwoofer.\n\nRewire before restarting.',
-  1:'Switch to Bi-Amp?\n\nBoth amplifiers run as stereo BTL, with OUT_A driving the woofer and OUT_B the tweeter of one speaker.\n\nIf OUT_A and OUT_B are still bridged for a PBTL subwoofer you MUST unbridge them first — leaving them shorted drives the two outputs against each other and can damage the amplifier and its output filters.'
-};
-/* With two amps the DAC configuration already fixes the routing, so per-output
-   channel selection has no meaning. */
-function applyAmpLayout(){
-  document.getElementById('chan-group').style.display=
-    (chanLocked||dualDevices>1)?'none':'';
-}
-async function saveChannel(){
-  var v=Number.parseInt(document.getElementById('chan-mode').value,10);
-  try{var r=await fetch('/api/audio/channel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:v})});
-    var d=await r.json();if(d.success){msg('chan-msg','Saved!','ok');
-      /* The firmware may keep stereo regardless of what was asked for. */
-      if(typeof d.mode==='number'){document.getElementById('chan-mode').value=String(d.mode);}
-      chanLocked=!!d.locked;applyAmpLayout();}
-    else{msg('chan-msg',d.error,'err');}}
-  catch(e){msg('chan-msg','Error','err');console.error('saveChannel failed',e);}}
-async function loadDual(){
-  try{var r=await fetch('/api/audio/dual');if(!r.ok)return;var d=await r.json();
-    if(d.success&&d.devices>1){dualDevices=d.devices;dualMode=d.mode;
-      var sel=document.getElementById('dual-mode');
-      sel.value=String(d.mode);
-      if(!d.biamp){
-        sel.querySelector('option[value="1"]').disabled=true;
-        sel.querySelector('option[value="1"]').textContent='Bi-Amp (unavailable)';
-      }
-      document.getElementById('dual-group').style.display='';
-      if(d.restart_required){msg('dual-msg','Restart to apply the new wiring.','err');}}}
-  catch(e){console.warn('Could not load dual DAC mode',e);}
-  applyAmpLayout();}
-async function saveDual(){
-  var sel=document.getElementById('dual-mode');
-  var v=Number.parseInt(sel.value,10);
-  if(v!==dualMode&&!confirm(DUAL_WARN[v])){sel.value=String(dualMode);return;}
-  try{var r=await fetch('/api/audio/dual',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:v})});
-    var d=await r.json();
-    if(d.success){dualMode=v;msg('dual-msg','Saved! Rewire the speakers, then restart to apply.','ok');}
-    else{sel.value=String(dualMode);msg('dual-msg',d.error,'err');}}
-  catch(e){sel.value=String(dualMode);msg('dual-msg','Error','err');console.error('saveDual failed',e);}}
+    var d=await r.json();if(d.success){msg('brightness-msg','已保存！','ok');}else{msg('brightness-msg',d.error,'err');}}
+  catch(e){msg('brightness-msg','出错了','err');console.error('saveBrightness failed',e);}}
 async function saveName(){
-  var n=document.getElementById('dev-name').value.trim();if(!n){msg('name-msg','Enter a name','err');return;}
+  var n=document.getElementById('dev-name').value.trim();if(!n){msg('name-msg','请输入名称','err');return;}
   try{var r=await fetch('/api/device/name',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n})});
-    var d=await r.json();if(d.success){msg('name-msg','Saved! Restart to apply.','ok');loadInfo();}else{msg('name-msg',d.error,'err');}}
-  catch(e){msg('name-msg','Error','err');}}
+    var d=await r.json();if(d.success){msg('name-msg','已保存！重启后生效。','ok');loadInfo();}else{msg('name-msg',d.error,'err');}}
+  catch(e){msg('name-msg','出错了','err');}}
 async function startOTA(){
-  var f=document.getElementById('fw-file').files[0];if(!f){msg('ota-msg','Select a file','err');return;}
-  document.getElementById('ota-btn').disabled=true;msg('ota-msg','Uploading...','info');
-  try{await fetch('/api/ota/update',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:f});msg('ota-msg','Done! Rebooting...','ok');}
-  catch(e){msg('ota-msg','Rebooting...','ok');}}
+  var f=document.getElementById('fw-file').files[0];if(!f){msg('ota-msg','请选择文件','err');return;}
+  document.getElementById('ota-btn').disabled=true;msg('ota-msg','上传中...','info');
+  try{await fetch('/api/ota/update',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:f});msg('ota-msg','完成！正在重启...','ok');}
+  catch(e){msg('ota-msg','正在重启...','ok');}}
 async function restart(){
-  if(!confirm('Restart the device?'))return;
-  try{await fetch('/api/system/restart',{method:'POST'});msg('','Restarting...','info');}catch(e){}}
+  if(!confirm('确定要重启设备吗？'))return;
+  try{await fetch('/api/system/restart',{method:'POST'});msg('','正在重启...','info');}catch(e){}}
 async function loadInfo(){
   try{var r=await fetch('/api/system/info');var d=await r.json();
     if(d.success){var i=d.info;var b=document.getElementById('status-bar');
-      if(i.eth_connected){b.className='status-bar ok';b.innerHTML='Ethernet: '+i.ip;}
-      else if(i.wifi_connected){b.className='status-bar ok';b.innerHTML='WiFi: '+i.ip;}
-      else{b.className='status-bar err';b.innerHTML='Not connected - Configure WiFi below';}
+      if(i.eth_connected){b.className='status-bar ok';b.innerHTML='以太网已连接：'+i.ip;}
+      else if(i.wifi_connected){b.className='status-bar ok';b.innerHTML='WiFi 已连接：'+i.ip;}
+      else{b.className='status-bar err';b.innerHTML='未连接 - 请在下方配置 WiFi';}
       document.getElementById('info-ip').textContent=i.ip||'-';
       document.getElementById('info-mac').textContent=i.mac||'-';
       document.getElementById('info-name').textContent=i.device_name||'-';
       document.getElementById('info-heap').textContent=Math.round(i.free_heap/1024)+' KB';
       document.getElementById('info-fw').textContent=i.firmware_version||'-';
-      function rssiLabel(r){if(r==null)return '-';var q='';if(r>=-55)q=' (excellent)';else if(r>=-65)q=' (good)';else if(r>=-75)q=' (fair)';else q=' (poor)';return r+' dBm'+q;}
+      function rssiLabel(r){if(r==null)return '-';var q='';if(r>=-55)q='（极佳）';else if(r>=-65)q='（良好）';else if(r>=-75)q='（一般）';else q='（较差）';return r+' dBm'+q;}
       document.getElementById('info-ssid').textContent=i.wifi_ssid||'-';
       document.getElementById('info-rssi').textContent=rssiLabel(i.wifi_rssi);
       document.getElementById('info-chan').textContent=i.wifi_channel||'-';
       document.getElementById('info-phy').textContent=i.wifi_phy||'-';
       document.getElementById('info-bssid').textContent=i.wifi_bssid||'-';
-      if(i.eq_supported||i.sub_supported){document.getElementById('eq-link').style.display='';}
+      if(i.eq_supported){document.getElementById('eq-card').style.display='';}
       document.getElementById('dev-name').placeholder=i.device_name||'';}}catch(e){}}
 window.onload=function(){
   document.getElementById('fw-file').onchange=function(e){var f=e.target.files[0];
-    document.getElementById('fw-name').textContent=f?f.name:'No file selected';
+    document.getElementById('fw-name').textContent=f?f.name:'未选择文件';
     document.getElementById('ota-btn').disabled=!f;};
-  loadInfo();loadBrightness();loadChannel();loadDual();setInterval(loadInfo,30000);};
+  loadInfo();loadBrightness();setInterval(loadInfo,30000);};
 </script></body></html>

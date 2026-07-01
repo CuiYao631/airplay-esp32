@@ -1,30 +1,38 @@
-# ESP32-S3 target defaults - default to ESP32-S3 Generic board
+# ESP32-S3 目标默认配置 - 默认使用 ESP32-S3 通用开发板
 CONFIG_BOARD_ESP32S3_GENERIC=y
 CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
 CONFIG_ESPTOOLPY_FLASHSIZE="16MB"
 CONFIG_SPIRAM_MODE_OCT=y
 
-# USB Audio Class defaults for the current usb_device_uac integration.
-# Keep both streams stereo at 48 kHz so the UAC descriptors, feedback,
-# and AirPlay USB backend all use the same resampled output rate.
+# USB Audio Class 默认配置（当前 usb_device_uac 集成）。
+# 两个流均保持立体声 48kHz，使 UAC 描述符、反馈
+# 和 AirPlay USB 后端使用相同的重采样输出速率。
 CONFIG_UAC_SPEAKER_CHANNEL_NUM=2
 CONFIG_UAC_MIC_CHANNEL_NUM=2
 CONFIG_UAC_SAMPLE_RATE=48000
 
-# GPIO defaults
+# GPIO 默认配置
 CONFIG_BAT_CHANNEL=7
-CONFIG_LED_RGB_GPIO=48
+CONFIG_LED_RGB_GPIO=47
+CONFIG_LED_STATUS_GPIO=48
 CONFIG_I2S_SCK_IO=8
 CONFIG_I2S_BCK_IO=11
 CONFIG_I2S_WS_IO=13
 CONFIG_I2S_DO_IO=12
 CONFIG_I2S_GND_IO=14
 
-# ST7789 TFT display support is not enabled by default.
-# The display is optional hardware — enabling it configures specific SPI
-# GPIO pins which may conflict with other peripherals on your board.
-# To enable, add the following to your own sdkconfig.defaults.esp32s3
-# or run: idf.py menuconfig -> Display Configuration
+# 按钮配置（-1 表示禁用该按钮）
+CONFIG_BTN_PLAY_PAUSE_GPIO=-1
+CONFIG_BTN_VOLUME_UP_GPIO=-1
+CONFIG_BTN_VOLUME_DOWN_GPIO=-1
+CONFIG_BTN_NEXT_GPIO=-1
+CONFIG_BTN_PREV_GPIO=-1
+
+# ST7789 TFT 显示屏支持默认未启用。
+# 显示屏为可选硬件 — 启用后会配置特定的 SPI GPIO 引脚，
+# 可能与板上的其他外设冲突。
+# 如需启用，请将以下配置添加到你的 sdkconfig.defaults.esp32s3
+# 或运行：idf.py menuconfig -> Display Configuration
 #
 # CONFIG_DISPLAY_ENABLED=y
 # CONFIG_DISPLAY_DRIVER_ST7789=y
@@ -37,7 +45,7 @@ CONFIG_I2S_GND_IO=14
 # CONFIG_DISPLAY_BL_GPIO=38
 # CONFIG_DISPLAY_UPDATE_MS=500
 #
-# LVGL configuration (required when display is enabled):
+# LVGL 配置（启用显示屏时必需）：
 # CONFIG_LV_CONF_SKIP=y
 # CONFIG_LV_COLOR_DEPTH_16=y
 # CONFIG_LV_MEM_SIZE_KILOBYTES=64
@@ -49,4 +57,4 @@ CONFIG_I2S_GND_IO=14
 # CONFIG_LV_FONT_MONTSERRAT_24=y
 # CONFIG_LV_FONT_DEFAULT_MONTSERRAT_14=y
 #
-# See components/display/README.md for full setup instructions.
+# 完整配置说明请参见 components/display/README.md。
